@@ -10,17 +10,8 @@ class Area extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'name',
-        'description',
-        'type',
-        'status',
-        'capacity',
-        'opening_date',
-        'closing_date'
-    ];
+    protected $fillable = ['name', 'description', 'type', 'status', 'capacity', 'opening_date', 'closing_date', 'opening_time', 'closing_time'];
 
-    // Un área puede tener muchas reservaciones
     public function bookings()
     {
         return $this->hasMany(Booking::class);

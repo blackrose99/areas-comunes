@@ -21,7 +21,7 @@ return new class extends Migration
             $table->date('opening_date');
             $table->date('closing_date');
             $table->time('opening_time'); 
-            $table->time('closing_time'); // 🕒 Hora de cierre
+            $table->time('closing_time'); 
             $table->softDeletes();
             $table->timestamps();
         });
