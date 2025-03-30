@@ -32,13 +32,13 @@ function checkResident() {
     $("#document").data("processing", true);
     $("#checkBtn").data("processing", true);
 
-
     $.post("/check-resident", { document: documentNumber })
         .done(function (response) {
             if (response.exists) {
                 $('#login').hide();
                 $("#bookingModal").show();
                 buscarAreas();
+                mostrarInformacionUsuario(response.resident);
             } else {
                 alert(response.message);
                 $("#searchComponent").hide();
@@ -59,5 +59,18 @@ function checkResident() {
             $("#document").data("processing", false);
             $("#checkBtn").data("processing", false);
         });
-
 }
+
+
+function mostrarInformacionUsuario(resident) {
+    document.getElementById("resident-name").textContent = resident.name + " " + resident.last_name;
+    document.getElementById("resident-document").textContent = resident.document;
+    document.getElementById("resident-email").textContent = resident.email;
+    document.getElementById("resident-phone").textContent = resident.phone || 'No disponible';
+    document.getElementById("resident-id").value = resident.id;
+    document.getElementById("bookingModal").style.display = "block";
+}
+
+
+
+

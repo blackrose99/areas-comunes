@@ -9,34 +9,27 @@ class ResidentController extends Controller
 {
     public function checkResident(Request $request)
     {
-        // Obtener y limpiar el número de documento
         $document = trim($request->input('document'));
 
-        // Verificar que el documento no esté vacío
         if (empty($document)) {
             return response()->json(['exists' => false, 'message' => 'Debe ingresar un documento.'], 400);
         }
 
-        // Asegurar que se está comparando con el tipo correcto
         $document = strval($document);
 
-        // Buscar residente en la base de datos
         $resident = Resident::where('document', $document)->first();
 
-        // Si no existe, devolver mensaje de error
         if (!$resident) {
             return response()->json(['exists' => false, 'message' => 'No existe ese Residente en la base de datos.']);
         }
 
-        // Verificar si está bloqueado o suspendido
         if (!empty($resident->blocked) || $resident->status === 'inactive') {
             return response()->json(['exists' => false, 'message' => 'El residente está bloqueado o suspendido.']);
         }
 
-        // Residente encontrado y activo
         return response()->json([
             'exists' => true,
-            'data' => [
+            'resident' => [
                 'id' => $resident->id,
                 'name' => $resident->name,
                 'last_name' => $resident->last_name,

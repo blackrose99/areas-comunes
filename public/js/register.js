@@ -15,7 +15,8 @@ function registerResident() {
         .done(function (response) {
             alert(response.message);
             $("#registro").hide();
-            $("#searchComponent").show();
+            $("#bookingModal").show();
+            mostrarInformacionUsuario(response.resident);
         })
         .fail(function (xhr) {
             let errorMessage = xhr.responseJSON?.message || "Error al registrar el residente.";
