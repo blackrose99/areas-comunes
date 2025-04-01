@@ -18,18 +18,15 @@ return new class extends Migration
             $table->unsignedBigInteger('area_id');
             $table->foreign('area_id')->references('id')->on('areas');
             $table->date('date');
-            $table->time('time');
-            $table->integer('duration');
-            $table->enum('status', ['pending', 'approved', 'rejected']);
-            $table->text('comments');
+            $table->time('start_time'); // Hora de inicio
+            $table->time('end_time');   // Hora de fin (en lugar de duration)
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->text('comments')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('bookings');

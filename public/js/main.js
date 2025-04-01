@@ -36,7 +36,6 @@ function checkResident() {
         .done(function (response) {
             if (response.exists) {
                 $('#login').hide();
-                $("#bookingModal").show();
                 buscarAreas();
                 mostrarInformacionUsuario(response.resident);
             } else {
@@ -61,14 +60,16 @@ function checkResident() {
         });
 }
 
-
 function mostrarInformacionUsuario(resident) {
-    document.getElementById("resident-name").textContent = resident.name + " " + resident.last_name;
-    document.getElementById("resident-document").textContent = resident.document;
-    document.getElementById("resident-email").textContent = resident.email;
-    document.getElementById("resident-phone").textContent = resident.phone || 'No disponible';
-    document.getElementById("resident-id").value = resident.id;
-    document.getElementById("bookingModal").style.display = "block";
+    $("#resident-name").text(resident.name + " " + resident.last_name);
+    $("#resident-document").text(resident.document);
+    $("#resident-email").text(resident.email);
+    $("#resident-phone").text(resident.phone || "No disponible");
+    $("#resident-id").val(resident.id);
+
+    let modalElement = document.getElementById("bookingModal");
+    let bookingModal = new bootstrap.Modal(modalElement);
+    bookingModal.show();
 }
 
 

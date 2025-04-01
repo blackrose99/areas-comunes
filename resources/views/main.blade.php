@@ -10,9 +10,8 @@
         @include('components.register')
     </div>
 
-    <div id="bookingModal" style="display: none;">
-        @include('components.booking')
-    </div>
+    @include('components.booking')
+    @include('components.tableBooking')
 </div>
 
 @endsection

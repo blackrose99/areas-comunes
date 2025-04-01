@@ -1,4 +1,5 @@
-<div class="modal">
+<!-- components/booking.blade.php -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -6,33 +7,41 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div id="resident-info" class="mb-3">
-                    <p><strong>Nombre:</strong> <span id="resident-name"></span></p>
-                    <p><strong>Documento:</strong> <span id="resident-document"></span></p>
-                    <p><strong>Correo:</strong> <span id="resident-email"></span></p>
-                    <p><strong>Teléfono:</strong> <span id="resident-phone"></span></p>
-                </div>
-
+                <!-- Información del residente -->
+                <h6>Información del Residente</h6>
+                <p><strong>Nombre:</strong> <span id="resident-name"></span></p>
+                <p><strong>Documento:</strong> <span id="resident-document"></span></p>
+                <p><strong>Email:</strong> <span id="resident-email"></span></p>
+                <p><strong>Teléfono:</strong> <span id="resident-phone"></span></p>
                 <input type="hidden" id="resident-id">
 
-                <div class="mb-3">
-                    <label for="area" class="form-label">Área</label>
-                    <select id="area" class="form-select">
-                        <option value="">--Seleccionar--</option>
-                        <!-- Opciones dinámicas -->
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="time" class="form-label">Hora</label>
-                    <input type="time" id="time" class="form-control">
-                </div>
+                <!-- Formulario de reserva -->
+                <hr>
+                <h6>Detalles de la Reserva</h6>
+                <form id="bookingForm">
+                    <div class="mb-3">
+                        <label for="commonArea" class="form-label">Área Común</label>
+                        <select class="form-select" id="commonArea" name="common_area" required>
+                            <option value="">Seleccione un área común</option>
+                            <!-- Opciones dinámicas se llenarán con JS o desde el backend -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bookingDate" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="bookingDate" name="booking_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="timeRange" class="form-label">Rango de Hora</label>
+                        <select class="form-select" id="timeRange" name="time_range" required>
+                            <option value="">Seleccione un horario</option>
+                            <!-- Opciones dinámicas se llenarán con JS -->
+                        </select>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="createBooking()">
-                    <i class="fa fa-calendar-check"></i> Reservar
-                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="submitBooking">Reservar</button>
             </div>
         </div>
     </div>

@@ -8,7 +8,7 @@ function buscarAreas() {
 
 
 function llenarSelectorAreas(areas) {
-    let select = $("#area");
+    let select = $("#commonArea");
     select.empty();
     select.append('<option value="">--Seleccionar--</option>');
     areas.forEach(area => {
