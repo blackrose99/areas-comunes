@@ -11,4 +11,5 @@
     <button id="checkBtn" class="btn btn-primary w-100" style="font-size: 18px;">
         <i class="fa fa-search"></i> Buscar
     </button>
+
 </div>
