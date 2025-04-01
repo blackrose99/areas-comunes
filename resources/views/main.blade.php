@@ -7,7 +7,6 @@
     </div>
 
     <div id="registro" style="display: none;">
-        <h2>Registrar Residente</h2>
         @include('components.register')
     </div>
 
