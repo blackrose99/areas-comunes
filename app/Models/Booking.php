@@ -9,15 +9,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Booking extends Model
 {
     use HasFactory, SoftDeletes;
-
     protected $fillable = [
         'resident_id',
         'area_id',
         'date',
-        'time',
-        'duration',
+        'start_time',   // Agregado
+        'end_time',     // Agregado
         'status',
-        'comments'
+        'comments',
+        'attendees'     // Si es necesario agregar el campo de asistentes
     ];
 
     // Una reservación pertenece a un residente

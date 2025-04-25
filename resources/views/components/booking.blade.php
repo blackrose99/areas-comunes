@@ -31,6 +31,14 @@
                         <input type="date" class="form-control" id="bookingDate" name="booking_date" required>
                     </div>
                     <div class="mb-3">
+                        <label for="attendees" class="form-label">Cantidad de Personas</label>
+                        <input type="number" class="form-control" id="attendees" name="attendees" min="1" max="50" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comments" class="form-label">Comentarios</label>
+                        <textarea class="form-control" id="comments" name="comments" rows="3" placeholder="Opcional... detalles adicionales de la reserva"></textarea>
+                    </div>
+                    <div class="mb-3">
                         <label for="timeRange" class="form-label">Rango de Hora</label>
                         <select class="form-select" id="timeRange" name="time_range" required>
                             <option value="">Seleccione un horario</option>

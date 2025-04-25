@@ -3,7 +3,7 @@ function registerResident() {
         name: $("#name").val(),
         last_name: $("#last_name").val(),
         document: $("#document").val(),
-        document_type: $("#document_type").val(),
+        document_type: $("#document_type option:selected").text(),
         email: $("#email").val(),
         phone: $("#phone").val(),
         address: $("#address").val(),
@@ -16,6 +16,7 @@ function registerResident() {
             alert(response.message);
             $("#registro").hide();
             $("#bookingModal").show();
+            buscarAreas();
             mostrarInformacionUsuario(response.resident);
         })
         .fail(function (xhr) {

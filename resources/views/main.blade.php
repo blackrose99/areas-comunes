@@ -10,6 +10,8 @@
         @include('components.register')
     </div>
 
+    <div id="bookings-list-container" style="display: none;"></div>
+
     @include('components.booking')
     @include('components.tableBooking')
 </div>

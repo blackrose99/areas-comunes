@@ -9,21 +9,20 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('resident_id');
-            $table->foreign('resident_id')->references('id')->on('residents');
-            $table->unsignedBigInteger('area_id');
-            $table->foreign('area_id')->references('id')->on('areas');
+            $table->foreignId('resident_id')->constrained()->onDelete('cascade');
+            $table->foreignId('area_id')->constrained()->onDelete('cascade');
             $table->date('date');
-            $table->time('start_time'); // Hora de inicio
-            $table->time('end_time');   // Hora de fin (en lugar de duration)
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->string('start_time');
+            $table->string('end_time');
+            $table->integer('attendees'); // Cantidad de personas
             $table->text('comments')->nullable();
-            $table->softDeletes();
+            $table->enum('status', ['Pending', 'Confirmed', 'Cancelled'])->default('Pending');
             $table->timestamps();
+            $table->softDeletes(); // Esto es opcional si usas Soft Deletes
         });
     }
 

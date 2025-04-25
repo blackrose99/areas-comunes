@@ -10,6 +10,9 @@ Route::get('/', function () {
 
 Route::post('/check-resident', [ResidentController::class, 'checkResident']);
 Route::post('/register-resident', [ResidentController::class, 'registerResident']);
-Route::get('/bookings', [BookingController::class, 'getBookings']);
 Route::get('/areas', [BookingController::class, 'getAreas']);
 Route::post('/create-booking', [BookingController::class, 'createBooking']);
+Route::get('/time-ranges', [BookingController::class, 'getTimeRanges']);
+Route::post('/bookings', [BookingController::class, 'createBooking']);
+Route::get('/bookings', [BookingController::class, 'getBookings']);
+Route::get('/bookings/list', [BookingController::class, 'renderBookingsList']);
