@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\AuthController;
+
 
 Route::get('/', function () {
     return view('main');
@@ -16,3 +18,5 @@ Route::get('/time-ranges', [BookingController::class, 'getTimeRanges']);
 Route::post('/bookings', [BookingController::class, 'createBooking']);
 Route::get('/bookings', [BookingController::class, 'getBookings']);
 Route::get('/bookings/list', [BookingController::class, 'renderBookingsList']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

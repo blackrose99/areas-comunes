@@ -13,7 +13,7 @@
     <div id="bookings-list-container" style="display: none;"></div>
 
     @include('components.booking')
-    @include('components.tableBooking')
+    <!-- @include('components.tableBooking') -->
 </div>
 
 @endsection

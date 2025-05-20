@@ -1,97 +1,126 @@
 $(document).ready(function () {
-    // Configuración de CSRF Token para solicitudes AJAX
+    // Configuración global del CSRF Token para todas las solicitudes AJAX
     $.ajaxSetup({
         headers: {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
         }
     });
 
-    // Foco inicial al campo de documento
+    // Foco inicial en el campo de documento
     $("#document").focus();
 
-    // Detecta si presionas Enter para verificar al residente
+    // Presionar Enter en campo de documento busca residente
     $("#document").keypress(function (e) {
-        if (e.which == 13) {
+        if (e.which === 13) {
             checkResident();
         }
     });
 
-    // Detecta si se hace clic en el botón de verificación
+    // Mostrar formulario de login
+    $("#btn_login").click(function () {
+        $("#searchForm").hide();
+        $("#div_login").show();
+        $("#username").focus();
+    });
+
+    // Volver al formulario de búsqueda
+    $("#btn_back_to_search").click(function () {
+        $("#div_login").hide();
+        $("#searchForm").show();
+        $("#document").focus();
+    });
+    
+
+    // Intento de inicio de sesión
+    $("#loginBtn").click(function () {
+        let email = $("#username").val();
+        let password = $("#password").val();
+
+        if (!email || !password) {
+            alert("Por favor, completa todos los campos.");
+            return;
+        }
+
+        $.ajax({
+            url: "/login",
+            method: "POST",
+            data: {
+                email: email,
+                password: password
+            },
+            success: function (response) {
+                alert("Bienvenido, " + response.user.name);
+                $("#div_login").hide();
+                $("#searchForm").hide();
+                $("#bookingTableSection").show();
+                updateBookingsList(); // Cargar reservas luego del login
+            },
+            error: function (xhr) {
+                alert(xhr.responseJSON?.message || "Error al iniciar sesión.");
+            }
+        });
+    });
+
+    // Botón de verificación de residente
     $("#checkBtn").click(function () {
         checkResident();
     });
 
-    // Cuando se cambia la fecha o el área común, busca horarios
+    // Cuando se cambia la fecha o área, buscar horarios disponibles
     $("#bookingDate, #commonArea").on("change", function () {
         buscarHorarios();
     });
 
-    // Manejo de la creación de una reserva
+    // Crear reserva
     $("#submitBooking").click(function () {
-        let timeRange = document.getElementById('timeRange').value;
+        let timeRange = $("#timeRange").val();
 
-        // Asegúrate de que se haya seleccionado un horario
-        if (timeRange) {
-            // Divide el timeRange en start_time y end_time
-            let [start_time, end_time] = timeRange.split(' - ');
-
-            let data = {
-                resident_id: document.getElementById('resident-id').value,
-                area_id: document.getElementById('commonArea').value,
-                date: document.getElementById('bookingDate').value,
-                start_time: start_time,    // Asegúrate de que start_time se incluye
-                end_time: end_time,        // Asegúrate de que end_time se incluye
-                comments: document.getElementById('comments').value, // Obtén comentarios
-                attendees: document.getElementById('attendees').value, // Obtén cantidad de personas
-            };
-
-            // Realiza la solicitud POST para crear la reserva
-            fetch('/bookings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify(data)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Cierra el modal y actualiza la lista
-                        $('#bookingModal').modal('hide');
-                        updateBookingsList();
-                    } else {
-                        alert('Hubo un problema al crear la reserva.');
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        } else {
-            alert('Por favor, selecciona un horario.');
+        if (!timeRange) {
+            alert("Por favor, selecciona un horario.");
+            return;
         }
+
+        let [start_time, end_time] = timeRange.split(' - ');
+
+        let data = {
+            resident_id: $("#resident-id").val(),
+            area_id: $("#commonArea").val(),
+            date: $("#bookingDate").val(),
+            start_time: start_time,
+            end_time: end_time,
+            comments: $("#comments").val(),
+            attendees: $("#attendees").val()
+        };
+
+        fetch('/bookings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content")
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    $('#bookingModal').modal('hide');
+                    updateBookingsList();
+                } else {
+                    alert('Hubo un problema al crear la reserva.');
+                }
+            })
+            .catch(error => {
+                console.error('Error al crear reserva:', error);
+            });
     });
 });
 
-// Función para actualizar la lista de reservas
-function updateBookingsList() {
-    fetch('/bookings/list')
-        .then(response => {
-            if (!response.ok) throw new Error("Error al cargar la lista de reservas.");
-            return response.text();
-        })
-        .then(html => {
-            const container = document.getElementById('bookings-list-container');
-            container.innerHTML = html;
-            container.style.display = 'block'; // Mostrar la tabla
-        })
-        .catch(error => console.error(error));
-}
-
-// Verificar si el residente existe o no
+// Verifica si el residente existe
 function checkResident() {
     let documentNumber = $("#document").val().trim();
 
     if (!documentNumber) {
-        alertify.error("Por favor ingrese un número de documento.");
+        alert("Por favor ingrese un número de documento.");
         return;
     }
 
@@ -117,11 +146,9 @@ function checkResident() {
         })
         .fail(function (jqXHR) {
             let errorMessage = "Error al realizar la consulta.";
-
-            if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+            if (jqXHR.responseJSON?.message) {
                 errorMessage = jqXHR.responseJSON.message;
             }
-
             alert(errorMessage);
         })
         .always(function () {
@@ -130,6 +157,7 @@ function checkResident() {
         });
 }
 
+// Muestra info del residente autenticado
 function mostrarInformacionUsuario(resident) {
     $("#resident-name").text(resident.name + " " + resident.last_name);
     $("#resident-document").text(resident.document);
@@ -137,7 +165,22 @@ function mostrarInformacionUsuario(resident) {
     $("#resident-phone").text(resident.phone || "No disponible");
     $("#resident-id").val(resident.id);
 
-    let modalElement = document.getElementById("bookingModal");
-    let bookingModal = new bootstrap.Modal(modalElement);
+    const modalElement = document.getElementById("bookingModal");
+    const bookingModal = new bootstrap.Modal(modalElement);
     bookingModal.show();
+}
+
+// Actualiza la lista de reservas
+function updateBookingsList() {
+    fetch('/bookings/list')
+        .then(response => {
+            if (!response.ok) throw new Error("Error al cargar la lista de reservas.");
+            return response.text();
+        })
+        .then(html => {
+            const container = document.getElementById('bookings-list-container');
+            container.innerHTML = html;
+            container.style.display = 'block';
+        })
+        .catch(error => console.error("Error:", error));
 }

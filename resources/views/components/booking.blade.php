@@ -1,13 +1,11 @@
-<!-- components/booking.blade.php -->
 <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="bookingModalLabel">Reservar Área Común</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content booking-modal-content">
+            <div class="modal-header header-blue">
+                <h5 class="modal-title text-white" id="bookingModalLabel">Reservar Área Común</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Información del residente -->
                 <h6>Información del Residente</h6>
                 <p><strong>Nombre:</strong> <span id="resident-name"></span></p>
                 <p><strong>Documento:</strong> <span id="resident-document"></span></p>
@@ -15,7 +13,6 @@
                 <p><strong>Teléfono:</strong> <span id="resident-phone"></span></p>
                 <input type="hidden" id="resident-id">
 
-                <!-- Formulario de reserva -->
                 <hr>
                 <h6>Detalles de la Reserva</h6>
                 <form id="bookingForm">
@@ -23,7 +20,6 @@
                         <label for="commonArea" class="form-label">Área Común</label>
                         <select class="form-select" id="commonArea" name="common_area" required>
                             <option value="">Seleccione un área común</option>
-                            <!-- Opciones dinámicas se llenarán con JS o desde el backend -->
                         </select>
                     </div>
                     <div class="mb-3">
@@ -42,7 +38,6 @@
                         <label for="timeRange" class="form-label">Rango de Hora</label>
                         <select class="form-select" id="timeRange" name="time_range" required>
                             <option value="">Seleccione un horario</option>
-                            <!-- Opciones dinámicas se llenarán con JS -->
                         </select>
                     </div>
                 </form>
