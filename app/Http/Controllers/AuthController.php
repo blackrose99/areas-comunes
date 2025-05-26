@@ -10,34 +10,23 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        // Validación básica
-        $request->validate([
+        $credentials = $request->validate([
             'email' => 'required|email',
-            'password' => 'required|string|min:4'
+            'password' => 'required',
         ]);
 
-        // Tomar solo email y password del request
-        $credentials = $request->only('email', 'password');
-
-        // Intento de login
         if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-
+            $request->session()->regenerate(); // Regenera la sesión
             return response()->json([
                 'success' => true,
-                'message' => 'Inicio de sesión exitoso',
-                'user' => Auth::user()
+                'user' => Auth::user(),
+                'csrf_token' => csrf_token(), // Incluye el nuevo token CSRF
             ]);
         }
 
-        // Log de intento fallido
-        Log::warning('Login fallido', [
-            'email' => $credentials['email']
-        ]);
-
         return response()->json([
             'success' => false,
-            'message' => 'Correo o contraseña incorrectos'
+            'message' => 'Credenciales incorrectas.',
         ], 401);
     }
 

@@ -1,8 +1,8 @@
 $(document).ready(function () {
-    // Configuración global del CSRF Token para todas las solicitudes AJAX
+    // Configuración global del CSRF Token para solicitudes jQuery
     $.ajaxSetup({
         headers: {
-            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
 
@@ -29,7 +29,6 @@ $(document).ready(function () {
         $("#searchForm").show();
         $("#document").focus();
     });
-    
 
     // Intento de inicio de sesión
     $("#loginBtn").click(function () {
@@ -37,7 +36,7 @@ $(document).ready(function () {
         let password = $("#password").val();
 
         if (!email || !password) {
-            alert("Por favor, completa todos los campos.");
+            showAlert('danger', 'Por favor, completa todos los campos.');
             return;
         }
 
@@ -49,14 +48,21 @@ $(document).ready(function () {
                 password: password
             },
             success: function (response) {
-                alert("Bienvenido, " + response.user.name);
-                $("#div_login").hide();
-                $("#searchForm").hide();
-                $("#bookingTableSection").show();
-                updateBookingsList(); // Cargar reservas luego del login
+                if (response.success) {
+                    $('meta[name="csrf-token"]').attr('content', response.csrf_token);
+                    currentResident = response.user;
+                    showAlert('success', "Bienvenido, " + response.user.name);
+                    $("#div_login").hide();
+                    $("#searchForm").hide();
+                    $("#searchComponent").hide();
+                    $("#bookingTableSection").show();
+                    updateBookingsList();
+                } else {
+                    showAlert('danger', response.message || "Error al iniciar sesión.");
+                }
             },
             error: function (xhr) {
-                alert(xhr.responseJSON?.message || "Error al iniciar sesión.");
+                showAlert('danger', xhr.responseJSON?.message || "Error al iniciar sesión.");
             }
         });
     });
@@ -76,7 +82,7 @@ $(document).ready(function () {
         let timeRange = $("#timeRange").val();
 
         if (!timeRange) {
-            alert("Por favor, selecciona un horario.");
+            showAlert('danger', 'Por favor, selecciona un horario.');
             return;
         }
 
@@ -92,35 +98,103 @@ $(document).ready(function () {
             attendees: $("#attendees").val()
         };
 
+        // Mostrar alerta de envío
+        showAlert('info', 'Enviando solicitud de reserva...');
+
         fetch('/bookings', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content")
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             body: JSON.stringify(data)
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    $('#bookingModal').modal('hide');
-                    updateBookingsList();
+                    showAlert('success', data.message || 'Reserva creada exitosamente.');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
                 } else {
-                    alert('Hubo un problema al crear la reserva.');
+                    showAlert('danger', data.message || 'Hubo un problema al crear la reserva.');
                 }
             })
             .catch(error => {
                 console.error('Error al crear reserva:', error);
+                showAlert('danger', 'Error al crear la reserva.');
             });
     });
+
+
+    // Aprobar/Rechazar reservas
+    $(document).on('click', '.approve-booking, .reject-booking', function () {
+        const action = $(this).data('action');
+        const bookingId = $(this).data('id');
+        const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+        if (!csrfToken) {
+            showAlert('danger', 'Error: Token CSRF no encontrado.');
+            return;
+        }
+
+        fetch(action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({})
+        })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 419) {
+                        throw new Error('Error 419: Token CSRF no válido o sesión expirada.');
+                    }
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    $(`#booking-${bookingId} .booking-status`).text(data.booking.status);
+                    $(`#booking-${bookingId} td:last-child`).html('<span class="text-muted">Ya procesada</span>');
+                    showAlert('success', data.message);
+                } else {
+                    showAlert('danger', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', error.message);
+            });
+    });
+
+    // Restaurar el formulario de búsqueda al cerrar el modal
+    $('#bookingModal').on('hidden.bs.modal', function () {
+        $("#searchComponent").show();
+        $("#searchForm").show();
+        $("#div_login").hide();
+        $("#registro").hide();
+        $("#bookingTableSection").hide();
+        $("#document").val('').focus();
+    });
+
+    $('#btnclosebooking').on('click', function () {
+        location.reload();
+    });
+
+
 });
 
-// Verifica si el residente existe
+// Variable global para almacenar los datos del residente
+let currentResident = null;
+
 function checkResident() {
     let documentNumber = $("#document").val().trim();
 
     if (!documentNumber) {
-        alert("Por favor ingrese un número de documento.");
+        showAlert('danger', 'Por favor ingrese un número de documento.');
         return;
     }
 
@@ -134,11 +208,12 @@ function checkResident() {
     $.post("/check-resident", { document: documentNumber })
         .done(function (response) {
             if (response.exists) {
+                currentResident = response.resident;
                 $('#login').hide();
                 buscarAreas();
                 mostrarInformacionUsuario(response.resident);
             } else {
-                alert(response.message);
+                showAlert('danger', response.message);
                 $("#searchComponent").hide();
                 $("#registro").show();
                 $("#newDocument").val(documentNumber).focus();
@@ -149,7 +224,7 @@ function checkResident() {
             if (jqXHR.responseJSON?.message) {
                 errorMessage = jqXHR.responseJSON.message;
             }
-            alert(errorMessage);
+            showAlert('danger', errorMessage);
         })
         .always(function () {
             $("#document").data("processing", false);
@@ -157,7 +232,6 @@ function checkResident() {
         });
 }
 
-// Muestra info del residente autenticado
 function mostrarInformacionUsuario(resident) {
     $("#resident-name").text(resident.name + " " + resident.last_name);
     $("#resident-document").text(resident.document);
@@ -170,7 +244,51 @@ function mostrarInformacionUsuario(resident) {
     bookingModal.show();
 }
 
-// Actualiza la lista de reservas
+function buscarHorarios() {
+    const date = $("#bookingDate").val();
+    const areaId = $("#commonArea").val();
+
+    if (!date || !areaId) {
+        $("#timeRange").empty();
+        return;
+    }
+
+    fetch(`/time-ranges?date=${date}&area_id=${areaId}`)
+        .then(response => response.json())
+        .then(data => {
+            $("#timeRange").empty().append('<option value="">Selecciona un horario</option>');
+            data.forEach(time => {
+                $("#timeRange").append(`<option value="${time}">${time}</option>`);
+            });
+        })
+        .catch(error => {
+            console.error('Error al cargar horarios:', error);
+            showAlert('danger', 'Error al cargar horarios disponibles.');
+        });
+}
+
+function showAlert(type, message) {
+    const alertContainer = $('#alert-container');
+    const alertClass = type === 'success' ? 'alert-success'
+        : type === 'info' ? 'alert-info'
+            : type === 'warning' ? 'alert-warning'
+                : 'alert-danger';
+    const alertId = 'alert-' + Date.now();
+    const alertHtml = `
+        <div id="${alertId}" class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    `;
+    alertContainer.append(alertHtml);
+    setTimeout(() => {
+        $(`#${alertId}`).addClass('fade-out').on('animationend', function () {
+            $(this).alert('close');
+        });
+    }, 3000);
+}
+
+
 function updateBookingsList() {
     fetch('/bookings/list')
         .then(response => {
@@ -181,6 +299,17 @@ function updateBookingsList() {
             const container = document.getElementById('bookings-list-container');
             container.innerHTML = html;
             container.style.display = 'block';
+            if ($.fn.DataTable.isDataTable('#bookings-table')) {
+                $('#bookings-table').DataTable().destroy();
+            }
+            $('#bookings-table').DataTable({
+                paging: true,
+                searching: true,
+                ordering: true
+            });
         })
-        .catch(error => console.error("Error:", error));
+        .catch(error => {
+            console.error("Error:", error);
+            showAlert('danger', 'Error al cargar la lista de reservas.');
+        });
 }

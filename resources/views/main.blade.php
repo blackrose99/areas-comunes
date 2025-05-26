@@ -13,7 +13,9 @@
     <div id="bookings-list-container" style="display: none;"></div>
 
     @include('components.booking')
-    <!-- @include('components.tableBooking') -->
 </div>
+@endsection
 
+@section('extra')
+<div id="alert-container" class="alert-container"></div>
 @endsection

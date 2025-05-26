@@ -43,9 +43,10 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" id="btnclosebooking" class="btn btn-secondary">Cerrar</button>
                 <button type="button" class="btn btn-primary" id="submitBooking">Reservar</button>
             </div>
         </div>
     </div>
 </div>
+
